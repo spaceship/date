@@ -154,6 +154,40 @@ func TestDate(t *testing.T) {
 		{"Wednesday", MustFromString("1989-06-14").Weekday()},
 		{"Thursday", MustFromString("2014-12-25").Weekday()},
 		{"Saturday", MustFromString("2018-08-18").Weekday()},
+
+		{
+			"true",
+			MustFromString("2024-01-01").LeapYear(),
+		},
+		{
+			"true",
+			MustFromString("2000-01-01").LeapYear(),
+		},
+		{
+			"false",
+			MustFromString("2100-01-01").LeapYear(),
+		},
+		{
+			"false",
+			MustFromString("2023-01-01").LeapYear(),
+		},
+
+		{
+			"366",
+			MustFromString("2024-01-01").DaysInYear(),
+		},
+		{
+			"366",
+			MustFromString("2000-01-01").DaysInYear(),
+		},
+		{
+			"365",
+			MustFromString("2100-01-01").DaysInYear(),
+		},
+		{
+			"365",
+			MustFromString("2023-01-01").DaysInYear(),
+		},
 	} {
 		if gotStr := fmt.Sprintf("%v", test.got); gotStr != test.want {
 			t.Errorf("i=%d got=%v want=%v", i, gotStr, test.want)
