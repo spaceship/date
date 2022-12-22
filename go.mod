@@ -1,3 +1,3 @@
-module github.com/peterstace/date
+module github.com/spaceship/date
 
 go 1.12

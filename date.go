@@ -187,6 +187,11 @@ func (d Date) YearDay() int {
 	return d.Time().YearDay()
 }
 
+// DaysInYear gives how many total days the year has (365/366)
+func (d Date) DaysInYear() int {
+	return New(d.Year(), time.December, 31).YearDay()
+}
+
 // MarshalJSON marshals the date into a JSON string in ISO8601 format.
 func (d Date) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + d.String() + `"`), nil

@@ -176,6 +176,23 @@ func TestDate(t *testing.T) {
 			"2018-01-01",
 			Min(MustFromString("2018-01-01"), MustFromString("2018-05-05")),
 		},
+
+		{
+			"366",
+			MustFromString("2024-01-01").DaysInYear(),
+		},
+		{
+			"366",
+			MustFromString("2000-01-01").DaysInYear(),
+		},
+		{
+			"365",
+			MustFromString("2100-01-01").DaysInYear(),
+		},
+		{
+			"365",
+			MustFromString("2023-01-01").DaysInYear(),
+		},
 	} {
 		if gotStr := fmt.Sprintf("%v", test.got); gotStr != test.want {
 			t.Errorf("i=%d got=%v want=%v", i, gotStr, test.want)
