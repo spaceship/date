@@ -187,19 +187,9 @@ func (d Date) YearDay() int {
 	return d.Time().YearDay()
 }
 
-// LeapYear gives whether or not the year is a leap year.
-// Any year divisible by 4 except century years
-// Any century year divisible by 400
-func (d Date) LeapYear() bool {
-	return d.Year()%400 == 0 || (d.Year()%4 == 0 && d.Year()%100 != 0)
-}
-
-// DaysInYear gives how many day total the year has, 365 or 366 in a leap yeare
+// DaysInYear gives how many total days the year has (365/366)
 func (d Date) DaysInYear() int {
-	if d.LeapYear() {
-		return 366
-	}
-	return 365
+	return New(d.Year(), time.December, 31).YearDay()
 }
 
 // MarshalJSON marshals the date into a JSON string in ISO8601 format.

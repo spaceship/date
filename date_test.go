@@ -178,23 +178,6 @@ func TestDate(t *testing.T) {
 		},
 
 		{
-			"true",
-			MustFromString("2024-01-01").LeapYear(),
-		},
-		{
-			"true",
-			MustFromString("2000-01-01").LeapYear(),
-		},
-		{
-			"false",
-			MustFromString("2100-01-01").LeapYear(),
-		},
-		{
-			"false",
-			MustFromString("2023-01-01").LeapYear(),
-		},
-
-		{
 			"366",
 			MustFromString("2024-01-01").DaysInYear(),
 		},
