@@ -28,6 +28,11 @@ func FromString(str string) (Date, error) {
 	return FromTime(t), nil
 }
 
+// New creates a day given a year, month, and day.
+func New(year int, month time.Month, day int) Date {
+	return FromTime(time.Date(year, month, day, 0, 0, 0, 0, time.UTC))
+}
+
 // MustFromString creates a date from its ISO8601 (YYYY-MM-DD) representation.
 // It panics if str is not in the right format.
 func MustFromString(str string) Date {
@@ -212,4 +217,22 @@ func (d *Date) Scan(src interface{}) error {
 // Dates to sql databases.
 func (d Date) Value() (driver.Value, error) {
 	return d.String(), nil
+}
+
+// Max finds the maximum date (furthest in the direction of the future) out of
+// the two given dates.
+func Max(d1, d2 Date) Date {
+	if d1 > d2 {
+		return d1
+	}
+	return d2
+}
+
+// Min finds the minimum date (furthest in the direction of the past) out of
+// the two given dates.
+func Min(d1, d2 Date) Date {
+	if d1 < d2 {
+		return d1
+	}
+	return d2
 }
