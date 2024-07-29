@@ -251,3 +251,112 @@ func TestSQLValue(t *testing.T) {
 		t.Fatalf("Got=%v", v)
 	}
 }
+
+func TestNullDate(t *testing.T) {
+	d := MustFromString("2013-07-13")
+	nd := NewNullDate(d)
+	if d != nd.Date {
+		t.Fatalf("Got=%v", nd.Date)
+	}
+	if !nd.Valid {
+		t.Fatalf("Got=%v", nd.Valid)
+	}
+}
+
+func TestNullDateSQLScanDate(t *testing.T) {
+	var nd NullDate
+	if err := nd.Scan(time.Date(2013, time.July, 13, 0, 0, 0, 0, time.UTC)); err != nil {
+		t.Fatal(err)
+	}
+	if nd.Date != MustFromString("2013-07-13") {
+		t.Fatalf("Got=%v", nd.Date)
+	}
+	if !nd.Valid {
+		t.Fatalf("Got=%v", nd.Valid)
+	}
+}
+
+func TestNullDateSQLScanNull(t *testing.T) {
+	var nd NullDate
+	if err := nd.Scan(nil); err != nil {
+		t.Fatal(err)
+	}
+	if nd.Valid {
+		t.Fatalf("Got=%v", nd.Valid)
+	}
+}
+
+func TestNullDateSQLValueDate(t *testing.T) {
+	v, err := NewNullDate(MustFromString("2013-07-13")).Value()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != "2013-07-13" {
+		t.Fatalf("Got=%v", v)
+	}
+}
+
+func TestNullDateSQLValueNull(t *testing.T) {
+	v, err := NullDate{}.Value()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
+		t.Fatalf("Got=%v", v)
+	}
+}
+
+func TestNullDateJSONDate(t *testing.T) {
+	type J struct {
+		Nd NullDate `json:"d"`
+	}
+	j := J{NewNullDate(MustFromString("2015-05-21"))}
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(j)
+	if err != nil {
+		t.Fatalf("Could not encode: %v", err)
+	}
+	if want := `{"d":"2015-05-21"}`; strings.TrimSpace(buf.String()) != want {
+		t.Fatalf("Did not encode correctly, want=%q got=%q",
+			want, strings.TrimSpace(buf.String()))
+	}
+
+	j = J{}
+	err = json.NewDecoder(&buf).Decode(&j)
+	if err != nil {
+		t.Fatalf("Could not decode: %v", err)
+	}
+	if want := MustFromString("2015-05-21"); j.Nd.Date != want {
+		t.Fatalf("Did not decode correctly, want=%q got=%q", want, j.Nd.Date)
+	}
+	if !j.Nd.Valid {
+		t.Fatalf("Did not decode correctly, should be valid")
+	}
+}
+
+func TestNullDateJSONNull(t *testing.T) {
+	type J struct {
+		Nd NullDate `json:"d"`
+	}
+	j := J{NullDate{}}
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(j)
+	if err != nil {
+		t.Fatalf("Could not encode: %v", err)
+	}
+	if want := `{"d":null}`; strings.TrimSpace(buf.String()) != want {
+		t.Fatalf("Did not encode correctly, want=%q got=%q",
+			want, strings.TrimSpace(buf.String()))
+	}
+
+	j = J{}
+	err = json.NewDecoder(&buf).Decode(&j)
+	if err != nil {
+		t.Fatalf("Could not decode: %v", err)
+	}
+	if j.Nd.Valid {
+		t.Fatalf("Did not decode correctly, should be not valid")
+	}
+}

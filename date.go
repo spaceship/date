@@ -241,3 +241,53 @@ func Min(d1, d2 Date) Date {
 	}
 	return d2
 }
+
+// NullDate represents a nullable date with compatibility for
+// scanning null values from the database.
+type NullDate struct {
+	Date  Date
+	Valid bool
+}
+
+func NewNullDate(d Date) NullDate {
+	return NullDate{
+		Date:  d,
+		Valid: true,
+	}
+}
+
+// Scan implements the sql.Scanner interface for database deserialization.
+func (d *NullDate) Scan(value interface{}) error {
+	if value == nil {
+		d.Valid = false
+		return nil
+	}
+	d.Valid = true
+	return d.Date.Scan(value)
+}
+
+// Value implements the driver.Valuer interface for database serialization.
+func (d NullDate) Value() (driver.Value, error) {
+	if !d.Valid {
+		return nil, nil
+	}
+	return d.Date.Value()
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (d *NullDate) UnmarshalJSON(dateBytes []byte) error {
+	if string(dateBytes) == "null" {
+		d.Valid = false
+		return nil
+	}
+	d.Valid = true
+	return d.Date.UnmarshalJSON(dateBytes)
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+func (d NullDate) MarshalJSON() ([]byte, error) {
+	if !d.Valid {
+		return []byte("null"), nil
+	}
+	return d.Date.MarshalJSON()
+}
