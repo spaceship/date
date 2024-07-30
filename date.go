@@ -1,7 +1,10 @@
 package date
 
 import (
+	"bytes"
+	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -209,7 +212,7 @@ func (d *Date) UnmarshalJSON(p []byte) error {
 
 // Scan implements the sql.Scanner interface, allowing the sql package to read
 // sql dates into Date.
-func (d *Date) Scan(src interface{}) error {
+func (d *Date) Scan(src any) error {
 	t, ok := src.(time.Time)
 	if !ok {
 		return fmt.Errorf("can not scan as Date: %T", src)
@@ -256,8 +259,24 @@ func NewNullDate(d Date) NullDate {
 	}
 }
 
+// NullDate should properly implement Scan and Value
+type NullDateSqlField interface {
+	sql.Scanner
+	driver.Valuer
+}
+
+var _ NullDateSqlField = NullDate{}
+
+// NullDate should properly implement UnmarshalJSON and MarshalJSON
+type NullDateJsonField interface {
+	json.Unmarshaler
+	json.Marshaler
+}
+
+var _ NullDateJsonField = NullDate{}
+
 // Scan implements the sql.Scanner interface for database deserialization.
-func (d *NullDate) Scan(value interface{}) error {
+func (d NullDate) Scan(value any) error {
 	if value == nil {
 		d.Valid = false
 		return nil
@@ -275,8 +294,8 @@ func (d NullDate) Value() (driver.Value, error) {
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (d *NullDate) UnmarshalJSON(dateBytes []byte) error {
-	if string(dateBytes) == "null" {
+func (d NullDate) UnmarshalJSON(dateBytes []byte) error {
+	if bytes.Equal(dateBytes, []byte("null")) {
 		d.Valid = false
 		return nil
 	}
