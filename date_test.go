@@ -360,3 +360,110 @@ func TestNullDateJSONNull(t *testing.T) {
 		t.Fatalf("Did not decode correctly, should be not valid")
 	}
 }
+
+func TestDiff(t *testing.T) {
+
+	type want struct {
+		year  int
+		month int
+		day   int
+	}
+
+	tests := map[string]struct {
+		d1   Date
+		d2   Date
+		want want
+	}{
+		"1 year diff": {
+			d1: MustFromString("2001-01-01"),
+			d2: MustFromString("2002-01-01"),
+			want: want{
+				year:  1,
+				month: 12,
+				day:   365,
+			},
+		},
+		"1 year diff leap year": {
+			d1: MustFromString("2000-01-01"),
+			d2: MustFromString("2001-01-01"),
+			want: want{
+				year:  1,
+				month: 12,
+				day:   366,
+			},
+		},
+		"1 month diff": {
+			d1: MustFromString("2000-01-01"),
+			d2: MustFromString("2000-02-01"),
+			want: want{
+				year:  0,
+				month: 1,
+				day:   31,
+			},
+		},
+		"1 day diff": {
+			d1: MustFromString("2000-01-01"),
+			d2: MustFromString("2000-01-02"),
+			want: want{
+				year:  0,
+				month: 0,
+				day:   1,
+			},
+		},
+		"1 year, 1 month, 1 day": {
+			d1: MustFromString("2001-02-01"),
+			d2: MustFromString("2002-03-01"),
+			want: want{
+				year:  1,
+				month: 13,
+				day:   393,
+			},
+		},
+		"negative diff": {
+			d1: MustFromString("2002-01-01"),
+			d2: MustFromString("2001-01-01"),
+			want: want{
+				year:  1,
+				month: 12,
+				day:   365,
+			},
+		},
+		"equal dates": {
+			d1: MustFromString("2000-01-01"),
+			d2: MustFromString("2000-01-01"),
+			want: want{
+				year:  0,
+				month: 0,
+				day:   0,
+			},
+		},
+		"february": {
+			d1: MustFromString("2001-02-01"),
+			d2: MustFromString("2001-03-01"),
+			want: want{
+				year:  0,
+				month: 1,
+				day:   28,
+			},
+		},
+		"february leap year": {
+			d1: MustFromString("2000-02-01"),
+			d2: MustFromString("2000-03-01"),
+			want: want{
+				year:  0,
+				month: 1,
+				day:   29,
+			},
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			y, m, d := Diff(tt.d1, tt.d2)
+			if y != tt.want.year || m != tt.want.month || d != tt.want.day {
+				t.Fatalf("Got Year: %d, Month: %d, Day: %d, want Year: %d, Month: %d, Day: %d", y, m, d, tt.want.year, tt.want.month, tt.want.day)
+			}
+
+		})
+	}
+}
