@@ -227,6 +227,36 @@ func (d Date) Value() (driver.Value, error) {
 	return d.String(), nil
 }
 
+// Diff finds the difference in years, months, and days between two provided dates.
+// The dates can be provided in any order, or can be equal.
+//
+// Returns 3 integers representing the number of years, months, and days
+// separating the two dates. These values are non-contiguous and should be taken
+// as standalone values, e.g., the diff between Feb 1st 2001 and March 1st 2002
+// would be 1 year, 13 months, and 393 days.
+func Diff(d1, d2 Date) (year int, month int, day int) {
+	if d2 < d1 {
+		d1, d2 = d2, d1
+	}
+	y, m, d := d1, d1, d1
+	for y.Year() < d2.Year() {
+		y = y.AddYears(1)
+		year += 1
+	}
+	for m.Month() < d2.Month() {
+		m = m.AddMonths(1)
+		month += 1
+	}
+	for d < d2 {
+		d = d.AddDays(1)
+		day += 1
+	}
+
+	month += year * 12
+
+	return
+}
+
 // Max finds the maximum date (furthest in the direction of the future) out of
 // the two given dates.
 func Max(d1, d2 Date) Date {
