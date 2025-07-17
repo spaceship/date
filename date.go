@@ -101,6 +101,18 @@ func (d Date) AddMonths(months int) Date {
 	return FromTime(d.Time().AddDate(0, months, 0))
 }
 
+// AddCalendarMonths adds the number of specified months to create a new date. This
+// function does not allow rollover and dates are clamped to the end of the month.
+// e.g. adding 1 month to 2025-03-31 will result in 2025-04-30 rather than 2025-05-01
+// with the AddMonths function.
+func (d Date) AddCalendarMonths(months int) Date {
+	newTime := d.Time().AddDate(0, months, 0)
+	if newDay := newTime.Day(); newDay != d.Day() {
+		return FromTime(newTime.AddDate(0, 0, -newDay))
+	}
+	return FromTime(newTime)
+}
+
 // AddYears adds the number of specified years to create a new date. Dates are
 // normalized in the same way as `AddDate` in the `time` package.
 func (d Date) AddYears(years int) Date {
@@ -244,7 +256,7 @@ func Diff(d1, d2 Date) (year int, month int, day int) {
 		year += 1
 	}
 	for m.Month() < d2.Month() {
-		m = m.AddMonths(1)
+		m = m.AddCalendarMonths(1)
 		month += 1
 	}
 	for d < d2 {

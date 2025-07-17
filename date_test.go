@@ -193,6 +193,30 @@ func TestDate(t *testing.T) {
 			"365",
 			MustFromString("2023-01-01").DaysInYear(),
 		},
+		{
+			"2025-03-03",
+			MustFromString("2025-01-31").AddMonths(1),
+		},
+		{
+			"2025-02-28",
+			MustFromString("2025-01-31").AddCalendarMonths(1),
+		},
+		{
+			"2024-03-02", // Leap year
+			MustFromString("2024-01-31").AddMonths(1),
+		},
+		{
+			"2024-02-29", // Leap year
+			MustFromString("2024-01-31").AddCalendarMonths(1),
+		},
+		{
+			"2025-04-30",
+			MustFromString("2025-03-31").AddCalendarMonths(1),
+		},
+		{
+			"2025-04-15",
+			MustFromString("2025-03-15").AddCalendarMonths(1),
+		},
 	} {
 		if gotStr := fmt.Sprintf("%v", test.got); gotStr != test.want {
 			t.Errorf("i=%d got=%v want=%v", i, gotStr, test.want)
@@ -453,6 +477,15 @@ func TestDiff(t *testing.T) {
 				year:  0,
 				month: 1,
 				day:   29,
+			},
+		},
+		"end of month": {
+			d1: MustFromString("2000-03-31"),
+			d2: MustFromString("2000-06-30"),
+			want: want{
+				year:  0,
+				month: 3,
+				day:   91,
 			},
 		},
 	}
