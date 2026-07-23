@@ -307,7 +307,7 @@ type NullDateSqlField interface {
 	driver.Valuer
 }
 
-var _ NullDateSqlField = NullDate{}
+var _ NullDateSqlField = &NullDate{}
 
 // NullDate should properly implement UnmarshalJSON and MarshalJSON
 type NullDateJsonField interface {
@@ -315,10 +315,10 @@ type NullDateJsonField interface {
 	json.Marshaler
 }
 
-var _ NullDateJsonField = NullDate{}
+var _ NullDateJsonField = &NullDate{}
 
 // Scan implements the sql.Scanner interface for database deserialization.
-func (d NullDate) Scan(value any) error {
+func (d *NullDate) Scan(value any) error {
 	if value == nil {
 		d.Valid = false
 		return nil
@@ -336,7 +336,7 @@ func (d NullDate) Value() (driver.Value, error) {
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (d NullDate) UnmarshalJSON(dateBytes []byte) error {
+func (d *NullDate) UnmarshalJSON(dateBytes []byte) error {
 	if bytes.Equal(dateBytes, []byte("null")) {
 		d.Valid = false
 		return nil
